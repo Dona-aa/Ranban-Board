@@ -6,33 +6,64 @@
 
     let lanes = ['Do', 'Doing', 'Done', 'Archiv'];
     let issues = $state([]);
+    let notificationPermission = $state('default');
 
     // Gespeicherte Issues laden
     onMount(() => {
         try {
-            issues = JSON.parse(localStorage.getItem('issues') || '[]');
+            const saved = JSON.parse(localStorage.getItem('issues') || '[]');
+            issues = Array.isArray(saved) ? saved : [];
         } catch {
             issues = [];
         }
+
+        if ('Notification' in window) {
+            notificationPermission = Notification.permission;
+        }
     });
 
-    // Issues im Browser speichern
+    // Issues speichern
     function saveIssues() {
         localStorage.setItem('issues', JSON.stringify(issues));
     }
 
+    // Neues Issue hinzufügen
     function addIssue(issue) {
         issues.push(issue);
         saveIssues();
+    }
+
+    // Benachrichtigungen erlauben
+    async function enableNotifications() {
+        if ('Notification' in window) {
+            notificationPermission = await Notification.requestPermission();
+        }
+    }
+
+    // Benachrichtigung anzeigen
+    function notify(issue) {
+        if (notificationPermission === 'granted') {
+            try {
+                new Notification('Issue abgeschlossen!', {
+                    body: issue.title
+                });
+            } catch {
+                // Manche Browser unterstützen diese Methode nicht.
+            }
+        }
     }
 
     // Issue verschieben und speichern
     function moveIssue(id, lane) {
         const issue = issues.find((item) => String(item.id) === String(id));
 
-        if (issue) {
+        if (issue && issue.lane !== lane) {
             issue.lane = lane;
             saveIssues();
+
+            if (lane === 'Done') {
+                notify(issue);
+            }
         }
     }
 </script>
@@ -55,7 +86,17 @@
                 </p>
             </div>
 
-            <div class="flex items-center gap-3">
+            <div class="flex flex-wrap items-center gap-3">
+
+                {#if notificationPermission === 'default'}
+                    <button
+                        onclick={enableNotifications}
+                        class="rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium hover:bg-gray-100"
+                    >
+                        Mitteilungen aktivieren
+                    </button>
+                {/if}
+
                 <button
                     onclick={() => exportCSV(issues)}
                     class="rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-100"
@@ -64,6 +105,7 @@
                 </button>
 
                 <IssueDialog onCreate={addIssue} />
+
             </div>
         </header>
 

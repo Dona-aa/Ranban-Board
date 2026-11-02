@@ -5,17 +5,18 @@
 
     let { issue } = $props();
 
-    // Prüfen, ob das Fälligkeitsdatum vorbei ist
+    // Prüfen, ob das Issue überfällig ist
     let overdue = $derived(
         isBefore(parseISO(issue.dueDate), startOfDay(new Date()))
     );
 
-    // ID beim Ziehen speichern
+    // ID des Issues beim Ziehen speichern
     function startDrag(event) {
         event.dataTransfer.setData('text/plain', String(issue.id));
+        event.dataTransfer.effectAllowed = 'move';
     }
 
-    // Issue über das Teilen-Menü weitergeben
+    // Issue über die Web Share API teilen
     async function shareIssue() {
         const text = `${issue.title}\n${issue.description}\nFällig: ${issue.dueDate}`;
 
@@ -26,18 +27,16 @@
                     text: text
                 });
             } catch (error) {
-                // Abbrechen ist kein Fehler
                 if (error.name !== 'AbortError') {
                     alert('Teilen fehlgeschlagen.');
                 }
             }
         } else {
-            // Alternative für Browser ohne Web Share API
             try {
                 await navigator.clipboard.writeText(text);
                 alert('Issue wurde kopiert!');
             } catch {
-                alert('Teilen wird von diesem Browser nicht unterstützt.');
+                alert('Teilen wird nicht unterstützt.');
             }
         }
     }
@@ -46,7 +45,7 @@
 <article
     draggable="true"
     ondragstart={startDrag}
-    class="cursor-grab rounded-lg border bg-white p-4 shadow-sm {overdue ? 'border-red-400' : 'border-gray-200'}"
+    class="cursor-grab rounded-lg border bg-white p-4 shadow-sm active:cursor-grabbing {overdue ? 'border-red-400' : 'border-gray-200'}"
 >
     <div class="mb-3 flex items-center justify-between">
         <span class="rounded bg-gray-100 px-2 py-1 text-xs">
@@ -78,7 +77,6 @@
     </div>
 
     <div class="mt-4 flex gap-4 border-t border-gray-100 pt-3">
-
         <button
             onclick={() => exportICS(issue)}
             class="text-sm font-medium text-[#315c47] hover:underline"
@@ -92,6 +90,5 @@
         >
             Teilen
         </button>
-
     </div>
 </article>
