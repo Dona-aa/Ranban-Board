@@ -1,15 +1,16 @@
 <script>
     import { format, parseISO, isBefore, startOfDay } from 'date-fns';
     import { de } from 'date-fns/locale';
+    import { exportICS } from '#lib/download.js';
 
     let { issue } = $props();
 
-    // Prüfen, ob das Fälligkeitsdatum schon vorbei ist
+    // Prüfen, ob das Fälligkeitsdatum vorbei ist
     let overdue = $derived(
         isBefore(parseISO(issue.dueDate), startOfDay(new Date()))
     );
 
-    // ID des Issues beim Ziehen speichern
+    // ID beim Ziehen speichern
     function startDrag(event) {
         event.dataTransfer.setData('text/plain', String(issue.id));
     }
@@ -47,5 +48,14 @@
             {overdue ? '⚠ Überfällig:' : 'Fällig:'}
             {format(parseISO(issue.dueDate), 'dd. MMM yyyy', { locale: de })}
         </p>
+    </div>
+
+    <div class="mt-4 border-t border-gray-100 pt-3">
+        <button
+            onclick={() => exportICS(issue)}
+            class="text-sm font-medium text-[#315c47] hover:underline"
+        >
+            ICS exportieren
+        </button>
     </div>
 </article>
