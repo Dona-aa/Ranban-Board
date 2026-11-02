@@ -1,10 +1,11 @@
 <script>
     import Lane from '#lib/components/Lane.svelte';
+    import IssueDialog from '#lib/components/IssueDialog.svelte';
 
     let lanes = ['Do', 'Doing', 'Done', 'Archiv'];
 
-    // Beispielaufgaben zum Testen
-    let issues = [
+    // Beispielaufgaben
+    let issues = $state([
         {
             id: 1,
             title: 'Website erstellen',
@@ -25,7 +26,12 @@
             priority: 'Mittel',
             lane: 'Doing'
         }
-    ];
+    ]);
+
+    // Neues Issue zur Liste hinzufügen
+    function addIssue(issue) {
+        issues.push(issue);
+    }
 </script>
 
 <svelte:head>
@@ -36,14 +42,20 @@
 
     <div class="mx-auto max-w-7xl">
 
-        <header class="mb-10">
-            <h1 class="text-4xl font-semibold text-gray-900">
-                Kanban Board
-            </h1>
+        <header class="mb-10 flex items-center justify-between gap-4">
 
-            <p class="mt-2 text-gray-500">
-                Organisiere deine Aufgaben.
-            </p>
+            <div>
+                <h1 class="text-4xl font-semibold text-gray-900">
+                    Kanban Board
+                </h1>
+
+                <p class="mt-2 text-gray-500">
+                    Organisiere deine Aufgaben.
+                </p>
+            </div>
+
+            <IssueDialog onCreate={addIssue} />
+
         </header>
 
         <div class="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
