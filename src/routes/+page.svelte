@@ -1,8 +1,31 @@
 <script>
     import Lane from '#lib/components/Lane.svelte';
 
-    // Die vier Kategorien des Boards
     let lanes = ['Do', 'Doing', 'Done', 'Archiv'];
+
+    // Beispielaufgaben zum Testen
+    let issues = [
+        {
+            id: 1,
+            title: 'Website erstellen',
+            description: 'Die Startseite programmieren.',
+            createdAt: '2026-11-02',
+            dueDate: '2026-11-10',
+            points: 5,
+            priority: 'Hoch',
+            lane: 'Do'
+        },
+        {
+            id: 2,
+            title: 'Design verbessern',
+            description: 'Farben und Abstände anpassen.',
+            createdAt: '2026-11-02',
+            dueDate: '2026-11-12',
+            points: 3,
+            priority: 'Mittel',
+            lane: 'Doing'
+        }
+    ];
 </script>
 
 <svelte:head>
@@ -26,7 +49,10 @@
         <div class="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
 
             {#each lanes as lane}
-                <Lane name={lane} />
+                <Lane
+                    name={lane}
+                    issues={issues.filter((issue) => issue.lane === lane)}
+                />
             {/each}
 
         </div>
