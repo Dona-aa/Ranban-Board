@@ -1,8 +1,15 @@
 <script>
     import IssueCard from './IssueCard.svelte';
 
-    // Name und Aufgaben von der Hauptseite bekommen
-    let { name, issues } = $props();
+    let { name, issues, onMove } = $props();
+
+    // Issue in diese Kategorie verschieben
+    function dropIssue(event) {
+        event.preventDefault();
+
+        const id = event.dataTransfer.getData('text/plain');
+        onMove(id, name);
+    }
 </script>
 
 <section class="min-h-96 rounded-xl bg-[#ebeeeb] p-4">
@@ -11,8 +18,13 @@
         {name}
     </h2>
 
-    <div class="flex flex-col gap-3">
-
+    <div
+        role="region"
+        aria-label="Aufgaben in {name} ablegen"
+        ondragover={(event) => event.preventDefault()}
+        ondrop={dropIssue}
+        class="flex min-h-72 flex-col gap-3"
+    >
         {#each issues as issue}
             <IssueCard {issue} />
         {/each}
@@ -22,7 +34,6 @@
                 Keine Aufgaben
             </p>
         {/if}
-
     </div>
 
 </section>

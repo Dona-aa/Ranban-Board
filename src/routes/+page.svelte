@@ -4,7 +4,6 @@
 
     let lanes = ['Do', 'Doing', 'Done', 'Archiv'];
 
-    // Beispielaufgaben
     let issues = $state([
         {
             id: 1,
@@ -28,9 +27,17 @@
         }
     ]);
 
-    // Neues Issue zur Liste hinzufügen
     function addIssue(issue) {
         issues.push(issue);
+    }
+
+    // Kategorie eines Issues ändern
+    function moveIssue(id, lane) {
+        const issue = issues.find((item) => String(item.id) === String(id));
+
+        if (issue) {
+            issue.lane = lane;
+        }
     }
 </script>
 
@@ -64,6 +71,7 @@
                 <Lane
                     name={lane}
                     issues={issues.filter((issue) => issue.lane === lane)}
+                    onMove={moveIssue}
                 />
             {/each}
 

@@ -1,10 +1,13 @@
 <script>
-    // Die Informationen eines Issues bekommen
+    // Issue-Daten von der Hauptseite bekommen
     let { issue } = $props();
 </script>
 
-<article class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-
+<article
+    draggable="true"
+    ondragstart={(event) => event.dataTransfer.setData('text/plain', issue.id)}
+    class="cursor-grab rounded-lg border border-gray-200 bg-white p-4 shadow-sm active:cursor-grabbing"
+>
     <div class="mb-3 flex items-center justify-between">
         <span class="rounded bg-gray-100 px-2 py-1 text-xs">
             {issue.priority}
@@ -26,5 +29,4 @@
     <p class="mt-4 text-xs text-gray-400">
         Fällig: {issue.dueDate}
     </p>
-
 </article>
