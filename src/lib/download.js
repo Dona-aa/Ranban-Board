@@ -10,7 +10,7 @@ export function download(text, filename, type) {
     link.download = filename;
     link.click();
 
-    URL.revokeObjectURL(url);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 // Ein Issue als Kalenderdatei exportieren
@@ -30,7 +30,7 @@ export function exportICS(issue) {
         'PRODID:-//Kanban Board//DE',
         'BEGIN:VEVENT',
         `UID:${issue.id}@kanban-board`,
-        `DTSTAMP:${format(new Date(), "yyyyMMdd'T'HHmmss'Z'")}`,
+        `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '')}`,
         `DTSTART;VALUE=DATE:${start}`,
         `DTEND;VALUE=DATE:${end}`,
         `SUMMARY:${escapeText(issue.title)}`,
@@ -40,4 +40,21 @@ export function exportICS(issue) {
     ].join('\r\n');
 
     download(ics, 'issue.ics', 'text/calendar;charset=utf-8');
+}
+
+// Alle Issues als CSV exportieren
+export function exportCSV(issues) {
+    const columns = ['title', 'description', 'createdAt', 'dueDate', 'points', 'priority', 'lane'];
+
+    // Texte mit Anführungszeichen für CSV vorbereiten
+    const row = (values) => values
+        .map((value) => `"${String(value ?? '').replaceAll('"', '""')}"`)
+        .join(';');
+
+    const csv = [
+        row(columns),
+        ...issues.map((issue) => row(columns.map((column) => issue[column])))
+    ].join('\r\n');
+
+    download('\uFEFF' + csv, 'kanban-issues.csv', 'text/csv;charset=utf-8');
 }
