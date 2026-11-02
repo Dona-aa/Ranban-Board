@@ -14,6 +14,33 @@
     function startDrag(event) {
         event.dataTransfer.setData('text/plain', String(issue.id));
     }
+
+    // Issue über das Teilen-Menü weitergeben
+    async function shareIssue() {
+        const text = `${issue.title}\n${issue.description}\nFällig: ${issue.dueDate}`;
+
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: issue.title,
+                    text: text
+                });
+            } catch (error) {
+                // Abbrechen ist kein Fehler
+                if (error.name !== 'AbortError') {
+                    alert('Teilen fehlgeschlagen.');
+                }
+            }
+        } else {
+            // Alternative für Browser ohne Web Share API
+            try {
+                await navigator.clipboard.writeText(text);
+                alert('Issue wurde kopiert!');
+            } catch {
+                alert('Teilen wird von diesem Browser nicht unterstützt.');
+            }
+        }
+    }
 </script>
 
 <article
@@ -35,7 +62,7 @@
         {issue.title}
     </h3>
 
-    <p class="mt-2 text-sm text-gray-500">
+    <p class="mt-2 whitespace-pre-wrap text-sm text-gray-500">
         {issue.description}
     </p>
 
@@ -50,12 +77,21 @@
         </p>
     </div>
 
-    <div class="mt-4 border-t border-gray-100 pt-3">
+    <div class="mt-4 flex gap-4 border-t border-gray-100 pt-3">
+
         <button
             onclick={() => exportICS(issue)}
             class="text-sm font-medium text-[#315c47] hover:underline"
         >
             ICS exportieren
         </button>
+
+        <button
+            onclick={shareIssue}
+            class="text-sm font-medium text-[#315c47] hover:underline"
+        >
+            Teilen
+        </button>
+
     </div>
 </article>
