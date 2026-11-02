@@ -1,42 +1,38 @@
 <script>
+    import { onMount } from 'svelte';
     import Lane from '#lib/components/Lane.svelte';
     import IssueDialog from '#lib/components/IssueDialog.svelte';
 
     let lanes = ['Do', 'Doing', 'Done', 'Archiv'];
 
-    let issues = $state([
-        {
-            id: 1,
-            title: 'Website erstellen',
-            description: 'Die Startseite programmieren.',
-            createdAt: '2026-11-02',
-            dueDate: '2026-11-10',
-            points: 5,
-            priority: 'Hoch',
-            lane: 'Do'
-        },
-        {
-            id: 2,
-            title: 'Design verbessern',
-            description: 'Farben und Abstände anpassen.',
-            createdAt: '2026-11-02',
-            dueDate: '2026-11-12',
-            points: 3,
-            priority: 'Mittel',
-            lane: 'Doing'
+    let issues = $state([]);
+
+    // Gespeicherte Aufgaben beim Start laden
+    onMount(() => {
+        try {
+            issues = JSON.parse(localStorage.getItem('issues') || '[]');
+        } catch {
+            issues = [];
         }
-    ]);
+    });
+
+    // Alle Aufgaben im Browser speichern
+    function saveIssues() {
+        localStorage.setItem('issues', JSON.stringify(issues));
+    }
 
     function addIssue(issue) {
         issues.push(issue);
+        saveIssues();
     }
 
-    // Kategorie eines Issues ändern
+    // Aufgabe verschieben und neue Position speichern
     function moveIssue(id, lane) {
         const issue = issues.find((item) => String(item.id) === String(id));
 
         if (issue) {
             issue.lane = lane;
+            saveIssues();
         }
     }
 </script>
